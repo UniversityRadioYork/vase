@@ -1,3 +1,4 @@
+import subprocess
 from flask import Flask, render_template, redirect, session, request, send_file
 from waitress import serve
 from flask_apscheduler import APScheduler
@@ -43,23 +44,15 @@ unix_timestamp = (datetime.now() - datetime(1970, 1, 1)).total_seconds()
 print("Starting at " + str(unix_timestamp) , file=sys.stderr)
 
 app = Flask(__name__)
-app.secret_key = secrets.token_urlsafe(16) 
+app.secret_key = secrets.token_urlsafe(16)
 
-streamfolder = "/streams/"
-tempclipfolder = "/clipstore/"
-volumefolder = "/opt/"
+streamfolder = os.environ.get("STREAMS_PATH", "/streams/")
+tempclipfolder = os.environ.get("CLIPS_PATH", "/clipstore/")
+volumefolder = os.environ.get("VOLUME_PATH", "/opt/")
 
 recordingmanager = RecordingManager(streamfolder)
 dbmanager = DBManager(volumefolder + "vase.db")
 forms = Forms(dbmanager)
-
-@scheduler.task('interval', id='do_job_1', minutes=2, misfire_grace_time=900)
-def job1():
-    recordingmanager.CleanStreams()
-
-@scheduler.task('interval', id='do_job_2', seconds=1, misfire_grace_time=900)
-def job2():
-    recordingmanager.UpdateStates()
 
 import random, string
 
@@ -167,21 +160,10 @@ def makeaudio(uid, size):
         '5': 300,
         '30': 30
     }
-    cliplen = 1000* times.get(size, 120)
     clipid = randomword(32)
-    clip = AudioSegment.from_mp3(streamfolder + 'stream' + str(uid) + '.mp3')
-    if len(clip) > cliplen:
-        clip = clip[(-1*cliplen):]
-    else:
-        extralen = cliplen - len(clip) 
-        try:
-            bonusclip = AudioSegment.from_mp3(streamfolder + 'stream-old' + str(uid) + '.mp3')
-            if len(bonusclip) > extralen:
-                bonusclip = bonusclip[(-1*extralen):]
-            clip = bonusclip + clip
-        except:
-            pass
-    clip.export(tempclipfolder+clipid+".mp3", format="mp3")
+
+    recordingmanager.threads[int(uid)]["recorder"].export_flac(times.get(size, 120), tempclipfolder+clipid+".flac")
+
     return {'uid': clipid}
 
 @app.route('/clipper/getaudio/<uid>')
@@ -189,7 +171,7 @@ def getaudio(uid):
     if not verifyKeys([uid]):
         return "keyerror"
     try:
-        return send_file(tempclipfolder+uid+".mp3")
+        return send_file(tempclipfolder+uid+".flac")
     except:
         return "error"
 
@@ -198,7 +180,7 @@ def getclip(uid):
     if not verifyKeys([uid]):
         return "keyerror"
     try:
-        return send_file(tempclipfolder+uid+"_clip.mp3")
+        return send_file(tempclipfolder+uid+"_clip.flac")
     except:
         return "error"
 
@@ -206,15 +188,18 @@ def getclip(uid):
 def makeclip(uid,start,end):
     if not verifyKeys([uid, start, end]):
         return "error"
-    clip = AudioSegment.from_mp3(tempclipfolder+uid+".mp3")
-    clipstart = (int(start)*1000)
-    clipend = (int(end)*1000)
-    if clipstart < 0 or clipstart > len(clip):
-        clipstart = 0
-    if clipend < 0 or clipend > len(clip):
-        clipend = len(clip)-2
-    clip = clip[clipstart:clipend]
-    clip.export(tempclipfolder+uid+"_clip.mp3", format="mp3")
+    subprocess.Popen([
+        "ffmpeg",
+        "-loglevel",
+        "error",
+        "-ss",
+        start,
+        "-i",
+        tempclipfolder+uid+".flac",
+        "-t",
+        str(int(end)-int(start)),
+        tempclipfolder+uid+"_clip.flac"
+    ])
     return {"status": "complete"}
 
 @app.route('/clipper/saveclip/<uid>/<name>/<stream>')
@@ -222,7 +207,7 @@ def saveclip(uid, name, stream):
     if not verifyKeys([uid, name, stream]):
         return "error"
     clipid = dbmanager.addclip(name, stream)
-    shutil.copyfile(tempclipfolder+uid+"_clip.mp3", (volumefolder + name + str(clipid) + '.mp3'))
+    shutil.copyfile(tempclipfolder+uid+"_clip.flac", (volumefolder + name + str(clipid) + '.flac'))
     return {"uid": clipid}
 
 
@@ -260,7 +245,7 @@ def getclipaudio(uid):
         return "error"
     clipinfo = dbmanager.getclip(uid)
     name = clipinfo[1]
-    return send_file(volumefolder + name + str(uid) + '.mp3')
+    return send_file(volumefolder + name + str(uid) + '.flac')
 
 @app.route('/clips/filter/stream/<stream>')
 def clipstreamfilter(stream):
@@ -327,7 +312,7 @@ def deleteclip(uid):
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() == 'mp3'
+           filename.rsplit('.', 1)[1].lower() == 'flac'
 
 @app.route('/clips/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -344,7 +329,7 @@ def upload_file():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             clipid = dbmanager.addclip(name, "Upload")
-            file.save(volumefolder + name + str(clipid) + '.mp3')
+            file.save(volumefolder + name + str(clipid) + '.flac')
             return redirect('/clips/'+str(clipid), code=302)
     return render_template("uploadclip.html")
 
@@ -492,4 +477,4 @@ if __name__ == "__main__":
     threads = int(os.environ.get('THREADS', 20))
     print("Starting server on port " + str(port) + " with " + str(threads) + " threads", file=sys.stderr)
     #app.run(debug=False, host='0.0.0.0', port=port)
-    serve(app, host='0.0.0.0',port=5040,threads=threads)
+    serve(app, host='0.0.0.0',port=port,threads=threads)
