@@ -125,12 +125,3 @@ class Recorder:
         stdin.write(audio)
         stdin.close()
         p.wait()
-
-
-if __name__ == "__main__":
-    recorder = Recorder("https://audio.ury.org.uk/jukebox")
-    recorder.start()
-
-    time.sleep(40)
-
-    recorder.export_flac(30, "last30s.flac")
