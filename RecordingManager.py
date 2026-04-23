@@ -52,3 +52,11 @@ class RecordingManager:
             return "shutdown"
         except:
             return "error"
+
+    def export(self, id: str, length: int, path: str):
+        thread = self.threads.get(id)
+        if not thread:
+            print(f"invalid recorder id {id} was passed to export")
+            return
+        recorder = thread["recorder"]
+        recorder.export_flac(length, path)
