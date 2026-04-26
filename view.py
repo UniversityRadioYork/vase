@@ -115,11 +115,14 @@ def format_datetime_readable(datetime_str):
 @app.route("/")
 def index():
     announces = dbmanager.getannoucements(5)
-    formatted_announcements = [{
-        "title": title,
-        "content": content,
-        "datetime": format_datetime_readable(date_time)
-    } for title, content, date_time in announces]
+    formatted_announcements = [
+        {
+            "title": title,
+            "content": content,
+            "datetime": format_datetime_readable(date_time),
+        }
+        for _, title, content, date_time in announces
+    ]
     seeall = len(announces) == 5
     return render_template(
         "announcements.html", announcements=formatted_announcements, seeall=seeall
@@ -128,11 +131,15 @@ def index():
 
 @app.route("/announcements")
 def announcements():
-    formatted_announcements = [{
-        "title": title,
-        "content": content,
-        "datetime": format_datetime_readable(date_time)
-    } for title, content, date_time in dbmanager.getannoucements(100)]
+    print(dbmanager.getannoucements(100))
+    formatted_announcements = [
+        {
+            "title": title,
+            "content": content,
+            "datetime": format_datetime_readable(date_time),
+        }
+        for _, title, content, date_time in dbmanager.getannoucements(100)
+    ]
     return render_template(
         "announcements.html", announcements=formatted_announcements, seeall=False
     )
@@ -182,7 +189,7 @@ def makeaudio(uid, size):
     if not audio_path:
         return "error"
 
-    recordingmanager.export(id, times.get(size, 120), audio_path)
+    recordingmanager.export(int(uid), times.get(size, 120), audio_path)
 
     return {"uid": id}
 
@@ -244,6 +251,7 @@ def saveclip(uid, name, stream):
     shutil.copyfile(source, destination)
     return {"uid": clip_id}
 
+
 def format_clips(clips) -> list[dict[str, str]]:
     formatted_clips = []
     for id, name, stream, date_time in clips:
@@ -259,6 +267,7 @@ def format_clips(clips) -> list[dict[str, str]]:
             clip["editurl"] = f"/clips/edit/{id}"
         formatted_clips.append(clip)
     return formatted_clips
+
 
 @app.route("/clips")
 def clips():
@@ -392,7 +401,9 @@ def upload_file():
             return redirect(request.url)
         if file and is_file_type(file.filename, "flac"):
             clipid = dbmanager.addclip(name, "Upload")
-            clip_path = werkzeug.security.safe_join(volumefolder, f"{name}{clipid}.flac")
+            clip_path = werkzeug.security.safe_join(
+                volumefolder, f"{name}{clipid}.flac"
+            )
             if not clip_path:
                 return "error"
             file.save(clip_path)
@@ -418,7 +429,9 @@ def uploadsound():
             return redirect(request.url)
         if file and is_file_type(file.filename, "mp3"):
             soundid = dbmanager.addsound(name, library)
-            sound_path = werkzeug.security.safe_join(volumefolder, f"{soundid}sound.mp3")
+            sound_path = werkzeug.security.safe_join(
+                volumefolder, f"{soundid}sound.mp3"
+            )
             if not sound_path:
                 return "error"
             file.save(sound_path)
@@ -432,13 +445,18 @@ def getsoundaudio(uid):
         return "error"
     return flask.send_from_directory(volumefolder, f"{uid}sound.mp3")
 
+
 def format_sounds(sounds) -> list[dict[str, str]]:
-    return [{
-        "id": id,
-        "name": name.replace("-", " "),
-        "link": f"/sounds/audio/{id}",
-        "library": library,
-    } for id, name, library in sounds]
+    return [
+        {
+            "id": id,
+            "name": name.replace("-", " "),
+            "link": f"/sounds/audio/{id}",
+            "library": library,
+        }
+        for id, name, library in sounds
+    ]
+
 
 @app.route("/sounds")
 def sounds():
@@ -502,15 +520,20 @@ def announce():
 def announcelist():
     if not isadmin(session):
         return redirect("/admin", code=302)
-    formatted_announcements = [{
-        "id": id,
-        "title": title,
-        "content": content,
-        "time": date_time,
-        "edit": f"/admin/announce/edit/{id}",
-        "delete": f"/admin/announce/delete/{id}",
-    } for id, title, content, date_time in dbmanager.getannoucements(100)]
-    return render_template("announcementlist.html", announcements=formatted_announcements)
+    formatted_announcements = [
+        {
+            "id": id,
+            "title": title,
+            "content": content,
+            "time": date_time,
+            "edit": f"/admin/announce/edit/{id}",
+            "delete": f"/admin/announce/delete/{id}",
+        }
+        for id, title, content, date_time in dbmanager.getannoucements(100)
+    ]
+    return render_template(
+        "announcementlist.html", announcements=formatted_announcements
+    )
 
 
 @app.route("/admin/announce/delete/<uid>")

@@ -14,9 +14,9 @@ class RecordingManager:
             if self.threads[key]["url"] == url:
                 return key
 
-        id = random.randint(1,65536)
+        id = random.randint(1, 65536)
         while id in self.threads:
-            id = random.randint(1,65536)
+            id = random.randint(1, 65536)
 
         recorder = Recorder(url)
 
@@ -41,7 +41,13 @@ class RecordingManager:
             thread = self.threads[i]
             recorder = thread["recorder"]
             state = "recording" if recorder.is_healthy() else "conerror"
-            info = {'id': i, "url": thread["url"], "lastread": time.monotonic() - recorder.get_last_read(), "state": state, "delete": "/admin/threads/close/"+str(i)}
+            info = {
+                "id": i,
+                "url": thread["url"],
+                "lastread": time.monotonic() - recorder.get_last_read(),
+                "state": state,
+                "delete": "/admin/threads/close/" + str(i),
+            }
             toret.append(info)
         return toret
 
@@ -53,7 +59,7 @@ class RecordingManager:
         except:
             return "error"
 
-    def export(self, id: str, length: int, path: str):
+    def export(self, id: int, length: int, path: str):
         thread = self.threads.get(id)
         if not thread:
             print(f"invalid recorder id {id} was passed to export")
