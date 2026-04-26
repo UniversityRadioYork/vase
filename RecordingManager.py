@@ -37,16 +37,16 @@ class RecordingManager:
 
     def GetAllStates(self):
         toret = []
-        for i in self.threads:
-            thread = self.threads[i]
+        for id in self.threads:
+            thread = self.threads[id]
             recorder = thread["recorder"]
             state = "recording" if recorder.is_healthy() else "conerror"
             info = {
-                "id": i,
+                "id": id,
                 "url": thread["url"],
                 "lastread": time.monotonic() - recorder.get_last_read(),
                 "state": state,
-                "delete": "/admin/threads/close/" + str(i),
+                "delete": f"/admin/threads/close/{id}",
             }
             toret.append(info)
         return toret
