@@ -4,18 +4,18 @@ let streamid = 0;
 let audioid = "";
 
 const items = [
-	{ name: "LR-OB1", url: "ingest.radio.roses.media:8443/LR-OB1" },
-	{ name: "LR-OB2", url: "ingest.radio.roses.media:8443/LR-OB2" },
-	{ name: "LR-OB3", url: "ingest.radio.roses.media:8443/LR-OB3" },
-	{ name: "LR-OB4", url: "ingest.radio.roses.media:8443/LR-OB4" },
-	{ name: "LR-OB5", url: "ingest.radio.roses.media:8443/LR-OB5" },
-	{ name: "LR-OBD", url: "ingest.radio.roses.media:8443/LR-OBD" },
-	{ name: "YR-OB0", url: "ingest.radio.roses.media:8443/YR-OB0" },
-	{ name: "YR-OB1", url: "ingest.radio.roses.media:8443/YR-OB1" },
-	{ name: "YR-OB2", url: "ingest.radio.roses.media:8443/YR-OB2" },
-	{ name: "YR-OB3", url: "ingest.radio.roses.media:8443/YR-OB3" },
-	{ name: "YR-OB4", url: "ingest.radio.roses.media:8443/YR-OB4" },
-	{ name: "CR-OB0", url: "ingest.radio.roses.media:8443/CR-OB0" },
+	{ name: "LR-OB1", url: "https://ingest.radio.roses.media:8443/LR-OB1" },
+	{ name: "LR-OB2", url: "https://ingest.radio.roses.media:8443/LR-OB2" },
+	{ name: "LR-OB3", url: "https://ingest.radio.roses.media:8443/LR-OB3" },
+	{ name: "LR-OB4", url: "https://ingest.radio.roses.media:8443/LR-OB4" },
+	{ name: "LR-OB5", url: "https://ingest.radio.roses.media:8443/LR-OB5" },
+	{ name: "LR-OBD", url: "https://ingest.radio.roses.media:8443/LR-OBD" },
+	{ name: "YR-OB0", url: "https://ingest.radio.roses.media:8443/YR-OB0" },
+	{ name: "YR-OB1", url: "https://ingest.radio.roses.media:8443/YR-OB1" },
+	{ name: "YR-OB2", url: "https://ingest.radio.roses.media:8443/YR-OB2" },
+	{ name: "YR-OB3", url: "https://ingest.radio.roses.media:8443/YR-OB3" },
+	{ name: "YR-OB4", url: "https://ingest.radio.roses.media:8443/YR-OB4" },
+	{ name: "CR-OB0", url: "https://ingest.radio.roses.media:8443/CR-OB0" },
 ];
 
 function populateDropdown(dataList) {
@@ -255,35 +255,35 @@ document.getElementById("clip30").addEventListener(
 	function () {
 		makeaudio("30");
 	},
-	false
+	false,
 );
 document.getElementById("clip1").addEventListener(
 	"click",
 	function () {
 		makeaudio("1");
 	},
-	false
+	false,
 );
 document.getElementById("clip2").addEventListener(
 	"click",
 	function () {
 		makeaudio("2");
 	},
-	false
+	false,
 );
 document.getElementById("clip3").addEventListener(
 	"click",
 	function () {
 		makeaudio("3");
 	},
-	false
+	false,
 );
 document.getElementById("clip5").addEventListener(
 	"click",
 	function () {
 		makeaudio("5");
 	},
-	false
+	false,
 );
 
 document.getElementById("clip30m").addEventListener(
@@ -291,39 +291,39 @@ document.getElementById("clip30m").addEventListener(
 	function () {
 		makeaudio("30");
 	},
-	false
+	false,
 );
 document.getElementById("clip1m").addEventListener(
 	"click",
 	function () {
 		makeaudio("1");
 	},
-	false
+	false,
 );
 document.getElementById("clip2m").addEventListener(
 	"click",
 	function () {
 		makeaudio("2");
 	},
-	false
+	false,
 );
 document.getElementById("clip5m").addEventListener(
 	"click",
 	function () {
 		makeaudio("5");
 	},
-	false
+	false,
 );
 
 document.getElementById("setStart").addEventListener("click", async () => {
 	document.getElementById("startClip").value = timeToString(
-		wavesurfer.getCurrentTime()
+		wavesurfer.getCurrentTime(),
 	);
 });
 
 document.getElementById("setEnd").addEventListener("click", async () => {
 	document.getElementById("endClip").value = timeToString(
-		wavesurfer.getCurrentTime()
+		wavesurfer.getCurrentTime(),
 	);
 });
 
