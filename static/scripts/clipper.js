@@ -4,19 +4,18 @@ let streamid = 0;
 let audioid = "";
 
 const items = [
-	{ name: "YR-OB0", url: "audio.ury.org.uk/YR-OB0" },
-	{ name: "YR-OB1", url: "audio.ury.org.uk/YR-OB1" },
-	{ name: "YR-OB2", url: "audio.ury.org.uk/YR-OB2" },
-	{ name: "YR-OB3", url: "audio.ury.org.uk/YR-OB3" },
-	{ name: "YR-OB4", url: "audio.ury.org.uk/YR-OB4" },
-	{ name: "YR-OB5", url: "audio.ury.org.uk/YR-OB5" },
-	{ name: "LR-OB0", url: "audio.ury.org.uk/LR-OB0" },
-	{ name: "LR-OB1", url: "audio.ury.org.uk/LR-OB1" },
-	{ name: "LR-OB2", url: "audio.ury.org.uk/LR-OB2" },
-	{ name: "LR-OB3", url: "audio.ury.org.uk/LR-OB3" },
-	{ name: "LR-OB4", url: "audio.ury.org.uk/LR-OB4" },
-	{ name: "MR-OB1", url: "audio.ury.org.uk/MR-OB1" },
-	{ name: "AR-OB0", url: "audio.ury.org.uk/AR-OB0" },
+	{ name: "LR-OB1", url: "ingest.radio.roses.media:8443/LR-OB1" },
+	{ name: "LR-OB2", url: "ingest.radio.roses.media:8443/LR-OB2" },
+	{ name: "LR-OB3", url: "ingest.radio.roses.media:8443/LR-OB3" },
+	{ name: "LR-OB4", url: "ingest.radio.roses.media:8443/LR-OB4" },
+	{ name: "LR-OB5", url: "ingest.radio.roses.media:8443/LR-OB5" },
+	{ name: "LR-OBD", url: "ingest.radio.roses.media:8443/LR-OBD" },
+	{ name: "YR-OB0", url: "ingest.radio.roses.media:8443/YR-OB0" },
+	{ name: "YR-OB1", url: "ingest.radio.roses.media:8443/YR-OB1" },
+	{ name: "YR-OB2", url: "ingest.radio.roses.media:8443/YR-OB2" },
+	{ name: "YR-OB3", url: "ingest.radio.roses.media:8443/YR-OB3" },
+	{ name: "YR-OB4", url: "ingest.radio.roses.media:8443/YR-OB4" },
+	{ name: "CR-OB0", url: "ingest.radio.roses.media:8443/CR-OB0" },
 ];
 
 function populateDropdown(dataList) {
